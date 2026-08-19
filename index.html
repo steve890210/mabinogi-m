@@ -337,6 +337,18 @@ function showRune(idx){
   `;
 }
 
+/* 生活技能頁介紹 */
+function renderLife(){
+  pageTitle.textContent = " 生活技能";
+  view.innerHTML = `
+    <div class="hero">
+      <h2>生活技能</h2>
+      <p>這裡整理瑪奇M 的生活技能相關內容，例如採集、製作等。</p>
+    </div>
+    <p class="sec-label">內容建置中</p>
+  `;
+}
+  
 /* NPC（先放示範用的空狀態） */
 function renderNpc(){
   pageTitle.textContent = "NPC 販賣清單";
@@ -355,6 +367,7 @@ function go(v){
   if(v==='home') renderHome();
   else if(v==='rune'){ runeFilter="全部"; runeSearch=""; renderRuneGallery(); }
   else if(v==='npc') renderNpc();
+  else if(v==='life') renderLife();
   closeMenu();
 }
 function setRuneFilter(r){ runeFilter=r; renderRuneGallery(); }
