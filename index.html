@@ -1,11 +1,372 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>瑪奇M 攻略資料站</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>瑪奇M 攻略資料站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* ===================================================================
+     以下是「程式／模板」區：負責版面、外觀、搜尋、切換畫面。
+     你平常不用改這裡。真正要改的資料在檔案最下方的 <script> 內。
+     =================================================================== */
+
+  :root{
+    --bg:#14161d;          /* 整體背景：暗夜靛藍 */
+    --panel:#1b1e27;       /* 側邊欄／面板 */
+    --panel-2:#22262f;     /* 卡片 */
+    --line:#2e333f;        /* 分隔線 */
+    --text:#e8e4d8;        /* 主要文字：暖羊皮紙色 */
+    --muted:#9a9385;       /* 次要文字 */
+    --gold:#d9a441;        /* 主題色：符文金 */
+    --gold-soft:rgba(217,164,65,.14);
+    /* 稀有度顏色（遊戲慣例，方便一眼分辨） */
+    --r-common:#a8adb8;
+    --r-rare:#6aa9e6;
+    --r-legend:#e8b04b;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Noto Sans TC",system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+  }
+  a{color:var(--gold);}
+
+  .app{display:flex;min-height:100vh;}
+
+  /* ---------- 左側選單欄 ---------- */
+  .sidebar{
+    width:248px;flex-shrink:0;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{
+    padding:22px 20px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand .title{
+    font-family:"Noto Serif TC",serif;
+    font-weight:700;font-size:19px;line-height:1.3;
+    letter-spacing:.5px;
+  }
+  .brand .sub{
+    font-family:"Cinzel",serif;
+    font-size:11px;letter-spacing:2px;
+    color:var(--gold);margin-top:4px;text-transform:uppercase;
+  }
+  nav{padding:14px 12px;display:flex;flex-direction:column;gap:4px;}
+  .nav-btn{
+    display:flex;align-items:center;gap:11px;
+    width:100%;text-align:left;
+    background:none;border:none;cursor:pointer;
+    color:var(--muted);
+    font-family:inherit;font-size:15px;
+    padding:11px 13px;border-radius:9px;
+    transition:background .15s,color .15s;
+  }
+  .nav-btn .ico{width:20px;text-align:center;font-size:15px;color:var(--gold);opacity:.75;}
+  .nav-btn:hover{background:var(--panel-2);color:var(--text);}
+  .nav-btn.active{background:var(--gold-soft);color:var(--text);font-weight:500;}
+  .nav-btn.active .ico{opacity:1;}
+  .side-foot{margin-top:auto;padding:16px 20px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);}
+
+  /* ---------- 右側內容區 ---------- */
+  .content{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 26px;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:rgba(20,22,29,.9);backdrop-filter:blur(6px);z-index:5;
+  }
+  .menu-toggle{display:none;background:none;border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:6px 11px;cursor:pointer;font-size:16px;}
+  .topbar h1{font-family:"Noto Serif TC",serif;font-size:20px;margin:0;font-weight:600;}
+  .view{padding:26px;max-width:1100px;}
+
+  /* ---------- 首頁 ---------- */
+  .hero{
+    border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(135deg,#1d2130,#191b22);
+    padding:30px 32px;margin-bottom:26px;position:relative;overflow:hidden;
+  }
+  .hero::after{content:"ᚱ";position:absolute;right:-10px;top:-30px;font-size:180px;
+    color:var(--gold);opacity:.05;font-family:serif;}
+  .hero h2{font-family:"Noto Serif TC",serif;font-size:26px;margin:0 0 8px;}
+  .hero p{color:var(--muted);margin:0;max-width:560px;}
+  .sec-label{font-family:"Cinzel",serif;font-size:12px;letter-spacing:2px;color:var(--gold);
+    text-transform:uppercase;margin:0 0 12px;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:28px;}
+  .info-card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .info-card .date{font-size:12px;color:var(--gold);margin-bottom:6px;}
+  .info-card h3{margin:0 0 6px;font-size:16px;}
+  .info-card p{margin:0;font-size:14px;color:var(--muted);}
+  .quick{display:flex;flex-wrap:wrap;gap:10px;}
+  .quick button{background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    font-family:inherit;font-size:14px;padding:10px 16px;border-radius:10px;cursor:pointer;transition:.15s;}
+  .quick button:hover{border-color:var(--gold);color:var(--gold);}
+
+  /* ---------- 符文：工具列 ---------- */
+  .tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:20px;}
+  .search{flex:1;min-width:200px;position:relative;}
+  .search input{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);
+    color:var(--text);font-family:inherit;font-size:15px;
+    padding:11px 14px 11px 38px;border-radius:10px;outline:none;transition:border .15s;
+  }
+  .search input:focus{border-color:var(--gold);}
+  .search .mag{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);
+    font-family:inherit;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;transition:.15s;}
+  .chip:hover{color:var(--text);}
+  .chip.active{background:var(--gold-soft);border-color:var(--gold);color:var(--gold);}
+
+  /* ---------- 符文：圖案牆 ---------- */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;}
+  .rune{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:14px;
+    padding:18px 12px 14px;text-align:center;cursor:pointer;
+    transition:transform .12s,border-color .12s,box-shadow .12s;
+  }
+  .rune:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 8px 22px rgba(0,0,0,.35);}
+  .rune .glyph{
+    font-size:44px;line-height:1;margin-bottom:12px;
+    /* 這個符文字元是「假圖」，之後會換成真正的圖片 */
+    display:flex;align-items:center;justify-content:center;height:72px;border-radius:10px;
+  }
+  .rune .rname{font-size:15px;font-weight:500;margin-bottom:6px;}
+  .badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid;}
+  .empty{color:var(--muted);padding:40px 0;text-align:center;grid-column:1/-1;}
+
+  /* ---------- 符文：詳情頁 ---------- */
+  .back{background:none;border:1px solid var(--line);color:var(--text);font-family:inherit;
+    font-size:14px;padding:8px 15px;border-radius:9px;cursor:pointer;margin-bottom:20px;transition:.15s;}
+  .back:hover{border-color:var(--gold);color:var(--gold);}
+  .detail{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;}
+  .detail .big-glyph{
+    width:180px;height:180px;flex-shrink:0;border-radius:18px;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:96px;
+  }
+  .detail .info{flex:1;min-width:260px;}
+  .detail h2{font-family:"Noto Serif TC",serif;font-size:28px;margin:0 0 10px;}
+  .detail .field{margin-top:18px;}
+  .detail .field .k{font-family:"Cinzel",serif;font-size:11px;letter-spacing:1.5px;
+    color:var(--gold);text-transform:uppercase;margin-bottom:5px;}
+  .detail .field .v{font-size:16px;line-height:1.7;}
+
+  .placeholder{color:var(--muted);border:1px dashed var(--line);border-radius:14px;
+    padding:40px;text-align:center;}
+  .placeholder .big{font-size:40px;margin-bottom:12px;opacity:.5;}
+
+  /* ---------- 手機版 ---------- */
+  .backdrop{display:none;}
+  @media(max-width:820px){
+    .sidebar{position:fixed;left:0;top:0;z-index:30;transform:translateX(-100%);
+      transition:transform .22s;box-shadow:2px 0 20px rgba(0,0,0,.5);}
+    .sidebar.open{transform:translateX(0);}
+    .menu-toggle{display:block;}
+    .backdrop.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;}
+    .view{padding:18px;}
+    .detail .big-glyph{width:130px;height:130px;font-size:70px;}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
 </head>
 <body>
-  <h1>瑪奇M 攻略資料站</h1>
-  <p>網站建置中，測試頁面成功顯示。</p>
+<div class="app">
+
+  <!-- 左側選單欄 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="title">瑪奇M 攻略資料站</div>
+      <div class="sub">Mabinogi&nbsp;M</div>
+    </div>
+    <nav id="nav">
+      <button class="nav-btn active" data-view="home"><span class="ico">⌂</span>首頁</button>
+      <button class="nav-btn" data-view="rune"><span class="ico">ᚱ</span>符文查詢</button>
+      <button class="nav-btn" data-view="npc"><span class="ico">₪</span>NPC 販賣清單</button>
+    </nav>
+    <div class="side-foot">建置中 · 資料持續更新</div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- 右側內容區 -->
+  <div class="content">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <h1 id="pageTitle">首頁</h1>
+    </div>
+    <div class="view" id="view"></div>
+  </div>
+
+</div>
+
+<script>
+/* ===================================================================
+   ★★★★★  資料區：你以後主要就是改這一段  ★★★★★
+   -------------------------------------------------------------------
+   下面是「符文」的資料。每一個 { ... } 就是一個符文，
+   要新增符文，就複製一整組 { ... }、改掉裡面的文字即可，畫面會自動多一格。
+
+   欄位說明：
+     name    : 符文名稱
+     rarity  : 稀有度，只能填 "普通" / "稀有" / "傳說" 三種之一
+     effect  : 效果說明
+     source  : 獲取方式
+     glyph   : 目前先放一個符文字元當假圖，之後會教你換成真正的圖片
+
+   ※ 目前這些都是「範例假資料」，不是真實遊戲數據，之後由你替換。
+   =================================================================== */
+   const RUNES = [
+     { name:"範例符文・炎", rarity:"傳說", effect:"攻擊時附加額外火焰傷害，並有機率造成灼燒。", source:"傳說副本「灰燼之塔」最終王掉落。", glyph:"ᚠ" },
+     { name:"範例符文・霜", rarity:"稀有", effect:"受到攻擊時，有機率減緩敵方移動速度。",       source:"冰原地區任務線完成後獲得。",       glyph:"ᛁ" },
+     { name:"範例符文・風", rarity:"普通", effect:"小幅提升移動速度。",                     source:"新手商店以金幣購買。",             glyph:"ᚹ" },
+     { name:"範例符文・雷", rarity:"傳說", effect:"技能命中時累積雷荷，滿層爆發範圍傷害。",     source:"限時活動「雷鳴祭」兌換。",         glyph:"ᛊ" },
+     { name:"範例符文・土", rarity:"稀有", effect:"提升防禦力，並小幅增加最大生命值。",         source:"礦坑深層寶箱隨機掉落。",           glyph:"ᛖ" },
+     { name:"範例符文・光", rarity:"稀有", effect:"施放治療時，額外恢復少量魔力。",             source:"神殿聲望商店兌換。",               glyph:"ᛞ" },
+     { name:"範例符文・影", rarity:"傳說", effect:"暴擊率提升，暴擊時短暫隱身。",               source:"夜間限定王「影狼」掉落。",         glyph:"ᚦ" },
+     { name:"範例符文・水", rarity:"普通", effect:"小幅提升魔力回復速度。",                   source:"釣魚系統一定機率獲得。",           glyph:"ᛚ" },
+   ];
+
+   /* NPC 資料之後也會用同一套做法放在這裡，先留空示範。 */
+   const NPCS = [];
+
+/* ===================================================================
+   ↓↓↓ 以下是「程式／模板」，負責把上面的資料變成畫面。平常不用改。 ↓↓↓
+   =================================================================== */
+
+const rarityColor = { "普通":"var(--r-common)", "稀有":"var(--r-rare)", "傳說":"var(--r-legend)" };
+
+const view = document.getElementById('view');
+const pageTitle = document.getElementById('pageTitle');
+let runeFilter = "全部";
+let runeSearch = "";
+
+/* 首頁 */
+function renderHome(){
+  pageTitle.textContent = "首頁";
+  view.innerHTML = `
+    <div class="hero">
+      <h2>歡迎來到瑪奇M 攻略資料站</h2>
+      <p>這裡整理瑪奇M（台港澳版）的各項遊戲資訊。左側選單可切換不同系統，點進去即可查詢。</p>
+    </div>
+    <p class="sec-label">公告 · Notice</p>
+    <div class="cards">
+      <div class="info-card"><div class="date">2026 / 08 / 19</div><h3>網站正式上線</h3><p>符文查詢系統已建置雛形，內容陸續補充中。</p></div>
+      <div class="info-card"><div class="date">建置中</div><h3>NPC 販賣清單</h3><p>下一個要製作的系統，敬請期待。</p></div>
+      <div class="info-card"><div class="date">規劃中</div><h3>裝備 · 稱號</h3><p>未來將加入更多查詢系統。</p></div>
+    </div>
+    <p class="sec-label">快速前往 · Quick Links</p>
+    <div class="quick">
+      <button onclick="go('rune')">→ 符文查詢</button>
+      <button onclick="go('npc')">→ NPC 販賣清單</button>
+    </div>
+  `;
+}
+
+/* 符文：圖案牆 */
+function renderRuneGallery(){
+  pageTitle.textContent = "符文查詢";
+  const chips = ["全部","普通","稀有","傳說"].map(r=>
+    `<button class="chip ${runeFilter===r?'active':''}" onclick="setRuneFilter('${r}')">${r}</button>`).join('');
+
+  view.innerHTML = `
+    <div class="tools">
+      <div class="search">
+        <span class="mag">⌕</span>
+        <input id="runeInput" type="text" placeholder="搜尋符文名稱或效果…" value="${runeSearch}">
+      </div>
+      <div class="chips">${chips}</div>
+    </div>
+    <div class="gallery" id="gallery"></div>
+  `;
+  const input = document.getElementById('runeInput');
+  input.addEventListener('input', e=>{ runeSearch = e.target.value; drawGallery(); });
+  input.focus();
+  drawGallery();
+}
+
+function drawGallery(){
+  const q = runeSearch.trim();
+  const list = RUNES.filter(r=>{
+    const okRarity = runeFilter==="全部" || r.rarity===runeFilter;
+    const okSearch = !q || r.name.includes(q) || r.effect.includes(q);
+    return okRarity && okSearch;
+  });
+  const g = document.getElementById('gallery');
+  if(list.length===0){ g.innerHTML = `<div class="empty">找不到符合的符文。</div>`; return; }
+  g.innerHTML = list.map(r=>{
+    const idx = RUNES.indexOf(r);
+    const c = rarityColor[r.rarity];
+    return `<div class="rune" onclick="showRune(${idx})">
+      <div class="glyph" style="color:${c};background:${c}18;">${r.glyph}</div>
+      <div class="rname">${r.name}</div>
+      <span class="badge" style="color:${c};border-color:${c};">${r.rarity}</span>
+    </div>`;
+  }).join('');
+}
+
+/* 符文：詳情 */
+function showRune(idx){
+  const r = RUNES[idx];
+  const c = rarityColor[r.rarity];
+  pageTitle.textContent = "符文詳情";
+  view.innerHTML = `
+    <button class="back" onclick="renderRuneGallery()">← 返回符文列表</button>
+    <div class="detail">
+      <div class="big-glyph" style="color:${c};background:${c}14;">${r.glyph}</div>
+      <div class="info">
+        <h2>${r.name}</h2>
+        <span class="badge" style="color:${c};border-color:${c};">${r.rarity}</span>
+        <div class="field"><div class="k">效果 · Effect</div><div class="v">${r.effect}</div></div>
+        <div class="field"><div class="k">獲取方式 · Source</div><div class="v">${r.source}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+/* NPC（先放示範用的空狀態） */
+function renderNpc(){
+  pageTitle.textContent = "NPC 販賣清單";
+  view.innerHTML = `
+    <div class="placeholder">
+      <div class="big">₪</div>
+      <p>NPC 販賣清單建置中。</p>
+      <p style="font-size:14px;">這個系統會沿用和符文完全一樣的做法：<br>一份獨立的資料 + 自動生成的清單。做好符文後複製過來即可。</p>
+    </div>
+  `;
+}
+
+/* 切換畫面 */
+function go(v){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  if(v==='home') renderHome();
+  else if(v==='rune'){ runeFilter="全部"; runeSearch=""; renderRuneGallery(); }
+  else if(v==='npc') renderNpc();
+  closeMenu();
+}
+function setRuneFilter(r){ runeFilter=r; renderRuneGallery(); }
+
+document.getElementById('nav').addEventListener('click', e=>{
+  const btn = e.target.closest('.nav-btn'); if(btn) go(btn.dataset.view);
+});
+
+/* 手機選單 */
+const sidebar=document.getElementById('sidebar'), backdrop=document.getElementById('backdrop');
+function openMenu(){ sidebar.classList.add('open'); backdrop.classList.add('show'); }
+function closeMenu(){ sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
+document.getElementById('menuToggle').addEventListener('click', openMenu);
+backdrop.addEventListener('click', closeMenu);
+
+renderHome();
+</script>
 </body>
 </html>
