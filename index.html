@@ -292,13 +292,35 @@
     wheat: {
       name: "小麥", 
       tags: ["canALLStore","canSell"],
-      desc:"結滿堅硬小顆粒的穀物。<br>可磨粉製作麵包或熬煮食用。<br>可在村莊的稻田中取得。"  },
+      desc: "結滿堅硬小顆粒的穀物。<br>可磨粉製作麵包或熬煮食用。<br>可在村莊的稻田中取得。"  },
     corn: {
       name: "玉米",
       tags: ["canALLStore","canSell"],
       desc: "飽滿金黃顆粒整齊排列的玉米。<br>可進行各種料理食用。<br>可在村莊的稻田中取得。"  },
   };
 
+
+  /* 瑪奇M所有的地方，此部分僅說明物品取得的來源，僅包含地點或是商城等，怪物掉落不再此地方 */
+  const PLACE = {
+
+};
+
+
+
+
+  /* 瑪奇M所有的地區難度定義。
+     一 難度代號對照表 一
+       normal = 一般
+       hard   = 困難
+       Vhard  = 非常困難
+       後面可對應相關顏色代碼。  */
+    const DIFFICULTY = {
+      normal: { name:"一般",     color:"#f2f2f2" },
+      hard:   { name:"困難",     color:"#ffff4d"},
+      Vhard:  { name:"非常困難", color:"#e60000"},
+    };
+      
+  
    /* 瑪奇M的所有道具的物品標籤。
      ── 代號對照表（加道具時 tags 就填左邊的代號）──
        noTrade      = 無法交易
