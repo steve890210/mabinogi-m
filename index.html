@@ -428,15 +428,36 @@ function renderLife(){
     </div>`;
 }
   /* 生活技能詳細頁面 */
+  /* 生活技能詳細頁面 */
   function showSkill(type, i){
-  const s = (type==='gather'?GATHER:CRAFT)[i];
-  const label = type==='gather'?'採集':'製作';
-  pageTitle.textContent = s.name;
-  view.innerHTML = `
-    <button class="back" onclick="renderLife()">← 返回生活技能</button>
-    <div class="hero"><h2>${s.name}</h2><p>分類：${label}技能<br>${s.desc||""}</p></div>
-    <p class="sec-label">內容建置中</p>`;
-}
+    const s = (type==='gather' ? GATHER : CRAFT)[i];
+    const label = type==='gather' ? '採集' : '製作';
+    pageTitle.textContent = s.name;
+
+    // 有 drops 就把每個道具做成一張「小卡」：名稱＋標籤＋簡介，可點
+    let dropsHtml = '';
+    if (s.drops && s.drops.length > 0) {
+      const cards = s.drops.map(key => {
+        const item = ITEMS[key];
+        if (!item) return `<button class="item-card" disabled>（找不到道具：${key}）</button>`;
+        return `<button class="item-card" onclick="showItem('${key}','${type}',${i})">
+                  <div class="iname">${item.name}</div>
+                  ${renderTags(item.tags)}
+                  <div class="idesc">${item.desc}</div>
+                </button>`;
+      }).join('');
+      dropsHtml = `
+        <p class="sec-label">可獲得道具 · Drops</p>
+        <div class="skill-list">${cards}</div>`;
+    } else {
+      dropsHtml = `<p class="sec-label">內容建置中</p>`;
+    }
+
+    view.innerHTML = `
+      <button class="back" onclick="renderLife()">← 返回生活技能</button>
+      <div class="hero"><h2>${s.name}</h2><p>分類：${label}技能<br>${s.desc||""}</p></div>
+      ${dropsHtml}`;
+  }
 
     /* 【翻譯小工具】把一串標籤代號翻成中文小藥丸。小卡和詳情頁共用這一個。
      tagKeys 例如 ["canSell","material"]，回傳已套好樣式的 HTML。 */
