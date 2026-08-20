@@ -471,6 +471,22 @@ function renderLife(){
     }).join('');
     return `<div class="tags">${pills}</div>`;
   }
+
+  /* 道具詳細頁面。fromType/fromIndex 是「從哪個技能點進來的」，讓返回鍵回到正確的技能頁 */
+  function showItem(key, fromType, fromIndex){
+    const item = ITEMS[key];
+    if (!item) return;                       // 防呆：代號不存在就什麼都不做
+    pageTitle.textContent = item.name;
+    view.innerHTML = `
+      <button class="back" onclick="showSkill('${fromType}',${fromIndex})">← 返回技能</button>
+      <div class="hero"><h2>${item.name}</h2>${renderTags(item.tags)}</div>
+      <div class="detail">
+        <div class="info">
+          <div class="field"><div class="k">說明 · Info</div><div class="v">${item.desc}</div></div>
+        </div>
+      </div>`;
+  }
+  
 /* NPC（先放示範用的空狀態） */
 function renderNpc(){
   pageTitle.textContent = "NPC 販賣清單";
