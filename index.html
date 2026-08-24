@@ -511,8 +511,12 @@ function renderLife(){
     const item = ITEMS[key];
     if (!item) return;                       // 防呆：代號不存在就什麼都不做
     pageTitle.textContent = item.name;
+    // 返回鍵要回哪裡：從 NPC 來就回 NPC，否則(技能)回技能
+    const back = (fromType === 'npc')
+      ? `<button class="back" onclick="showNpc(${fromIndex})">← 返回 NPC</button>`
+      : `<button class="back" onclick="showSkill('${fromType}',${fromIndex})">← 返回技能</button>`;
     view.innerHTML = `
-      <button class="back" onclick="showSkill('${fromType}',${fromIndex})">← 返回技能</button>
+      ${back}
       <div class="hero"><h2>${item.name}</h2>${renderTags(item.tags)}</div>
       <div class="detail">
         <div class="info">
@@ -554,12 +558,16 @@ function showNpc(idx){
     : `<div style="width:160px;height:160px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);color:var(--muted);">無圖片</div>`;
 
   const rows = (npc.sells && npc.sells.length)
-    ? npc.sells.map(s =>
-        `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);">
-           <span>${s.item}</span>
-           <span style="color:var(--muted);">${s.price} ${s.currency}</span>
-         </div>`
-      ).join('')
+    ? npc.sells.map(s => {
+        const it = ITEMS[s.item];   // 這個代號在 ITEMS 找得到嗎？
+        const name = it
+          ? `<span onclick="showItem('${s.item}','npc',${idx})" style="color:var(--gold);cursor:pointer;text-decoration:underline;">${it.name}</span>`
+          : s.item;                 // 找不到(還是純文字)就照原樣顯示
+        return `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);">
+                  <span>${name}</span>
+                  <span style="color:var(--muted);">${s.price} ${s.currency}</span>
+                </div>`;
+      }).join('')
     : `<div class="empty">目前沒有販賣清單。</div>`;
 
   view.innerHTML = `
