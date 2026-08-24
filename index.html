@@ -526,49 +526,54 @@ function renderLife(){
   }
   
 /* NPC：照地區顯示（名字＋圖片卡片） */
-function renderNpc(){
-  pageTitle.textContent = "NPC 介紹";
+function renderNpc(){                                                     // NPC 列表頁：照地區排出所有 NPC 卡片
+  pageTitle.textContent = "NPC 介紹";                                     // 上方標題
 
-  const card = (npc) => {
-    const pic = npc.img
+  const card = (npc) => {                                                 // 小工具：把一個 NPC 做成一張卡片
+    const pic = npc.img                                                   // 卡片圖：有圖顯示圖，沒圖顯示佔位框
       ? `<img src="${npc.img}" alt="${npc.name}" style="width:100%;height:110px;object-fit:cover;border-radius:10px;margin-bottom:10px;">`
       : `<div style="height:110px;border-radius:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);color:var(--muted);font-size:13px;">無圖片</div>`;
-    const idx = NPCS.indexOf(npc);
-    return `<div class="rune" onclick="showNpc(${idx})">${pic}<div class="rname">${npc.name}</div></div>`;
+    const idx = NPCS.indexOf(npc);                                        // 回頭問這個 NPC 在原本 NPCS 排第幾(給點擊用)
+    return `<div class="rune" onclick="showNpc(${idx})">${pic}<div class="rname">${npc.name}</div></div>`;  // 卡片可點→進詳細頁
   };
 
-  const sections = REGIONS.map(region => {
-    const list = NPCS.filter(npc => npc.region === region);
-    const cards = list.length
+  const sections = REGIONS.map(region => {                                // 照 REGIONS 順序，一個地區一個地區處理
+    const list = NPCS.filter(npc => npc.region === region);              // 篩出屬於這個地區的 NPC
+    const cards = list.length                                            // 這地區有 NPC 才排卡片，沒有就顯示提示
       ? `<div class="gallery">${list.map(card).join('')}</div>`
       : `<div class="empty">這個地區還沒有 NPC。</div>`;
-    return `<h3 style="color:var(--gold);margin:24px 0 12px;">${region}</h3>${cards}`;
+    return `<h3 style="color:var(--gold);margin:24px 0 12px;">${region}</h3>${cards}`;  // 地區標題 + 底下的卡片
   }).join('');
 
-  view.innerHTML = sections;
+  view.innerHTML = sections;                                             // 把整包塞進畫面
 }
-
 /* NPC：詳細頁（介紹＋所在地＋販賣清單） */
-function showNpc(idx){
-  const npc = NPCS[idx];
-  pageTitle.textContent = npc.name;
+function showNpc(idx){                                                    // idx = 這個 NPC 在 NPCS 裡排第幾
+  const npc = NPCS[idx];                                                  // 用編號撈出被點的那個 NPC
+  pageTitle.textContent = npc.name;                                       // 上方標題改成 NPC 名字
 
-  const pic = npc.img
+  const pic = npc.img                                                     // 頭像：有圖顯示圖，沒圖顯示佔位框
     ? `<img src="${npc.img}" alt="${npc.name}" style="width:160px;height:160px;object-fit:cover;border-radius:14px;">`
     : `<div style="width:160px;height:160px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);color:var(--muted);">無圖片</div>`;
 
-  const rows = (npc.sells && npc.sells.length)
-    ? npc.sells.map(s => {
-        const it = ITEMS[s.item];   // 這個代號在 ITEMS 找得到嗎？
-        const name = it
-          ? `<span onclick="showItem('${s.item}','npc',${idx})" style="color:var(--gold);cursor:pointer;text-decoration:underline;">${it.name}</span>`
-          : s.item;                 // 找不到(還是純文字)就照原樣顯示
-        return `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);">
-                  <span>${name}</span>
-                  <span style="color:var(--muted);">${s.price} ${s.currency}</span>
-                </div>`;
-      }).join('')
-    : `<div class="empty">目前沒有販賣清單。</div>`;
+  const shopTable = (list) => {                                           // 小工具1：把一份清單變成一行行表格
+    if (!list || !list.length) return '';                                // 沒這種清單就回空字串
+    return list.map(s => {                                                // 逐筆處理
+      const it = ITEMS[s.item];                                           // 用代號去 ITEMS 查
+      const name = it                                                     // 查得到→可點連結；查不到→純文字
+        ? `<span onclick="showItem('${s.item}','npc',${idx})" style="color:var(--gold);cursor:pointer;text-decoration:underline;">${it.name}</span>`
+        : s.item;
+      return `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);">
+                <span>${name}</span>
+                <span style="color:var(--muted);">${s.price} ${s.currency}</span>
+              </div>`;
+    }).join('');
+  };
+
+  const section = (title, list) => {                                      // 小工具2：做一個清單區塊(標題+表格)
+    if (!list || !list.length) return '';                                // 沒東西→這區不出現(自動消失)
+    return `<div class="field"><div class="k">${title}</div><div class="v">${shopTable(list)}</div></div>`;
+  };
 
   view.innerHTML = `
     <button class="back" onclick="renderNpc()">← 返回 NPC 列表</button>
@@ -578,12 +583,14 @@ function showNpc(idx){
         <h2>${npc.name}</h2>
         <div class="field"><div class="k">所在地 · Region</div><div class="v">${npc.region}</div></div>
         <div class="field"><div class="k">介紹 · Info</div><div class="v">${npc.desc || "（尚未填寫）"}</div></div>
-        <div class="field"><div class="k">販賣清單 · Shop</div><div class="v">${rows}</div></div>
+        ${section('販賣 · Shop',      npc.sells)}
+        ${section('以物易物 · Barter', npc.barter)}
+        ${section('活動限定 · Event',  npc.event)}
       </div>
     </div>
   `;
 }
-
+// 想加新清單(如戰鬥需求)：上面 view 裡多一行 ${section('戰鬥 · Fight', npc.fight)}，再到 NPC 資料加 fight 欄位(兩邊名字要一致)
 
 
   
