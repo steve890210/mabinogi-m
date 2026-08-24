@@ -340,12 +340,16 @@
    const REGIONS = ["提爾克那", "杜加德走廊", "杜巴頓","希德斯特雪原","庫漢"]; 
    const NPCS = [
     {
-        name:"特蕾西",
-        region:"杜加德走廊",
-        img:"特蕾西.png",
-        desc:"",
+      name:"特蕾西",
+      region:"杜加德走廊",
+      img:"特蕾西.png",
+      desc:"",
+      sells:[
+        { item:"繃帶", price:"50", currency:"金幣" },
+        { item:"神秘藥水", price:"1", currency:"紅寶石" },
+      ],
     },
-   ];
+  ];
 
 /* ===================================================================
    ↓↓↓ 以下是「程式／模板」，負責把上面的資料變成畫面。平常不用改。 ↓↓↓
@@ -517,18 +521,64 @@ function renderLife(){
       </div>`;
   }
   
-/* NPC（先放示範用的空狀態） */
+/* NPC：照地區顯示（名字＋圖片卡片） */
 function renderNpc(){
-  pageTitle.textContent = "NPC 販賣清單";
+  pageTitle.textContent = "NPC 介紹";
+
+  const card = (npc) => {
+    const pic = npc.img
+      ? `<img src="${npc.img}" alt="${npc.name}" style="width:100%;height:110px;object-fit:cover;border-radius:10px;margin-bottom:10px;">`
+      : `<div style="height:110px;border-radius:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);color:var(--muted);font-size:13px;">無圖片</div>`;
+    const idx = NPCS.indexOf(npc);
+    return `<div class="rune" onclick="showNpc(${idx})">${pic}<div class="rname">${npc.name}</div></div>`;
+  };
+
+  const sections = REGIONS.map(region => {
+    const list = NPCS.filter(npc => npc.region === region);
+    const cards = list.length
+      ? `<div class="gallery">${list.map(card).join('')}</div>`
+      : `<div class="empty">這個地區還沒有 NPC。</div>`;
+    return `<h3 style="color:var(--gold);margin:24px 0 12px;">${region}</h3>${cards}`;
+  }).join('');
+
+  view.innerHTML = sections;
+}
+
+/* NPC：詳細頁（介紹＋所在地＋販賣清單） */
+function showNpc(idx){
+  const npc = NPCS[idx];
+  pageTitle.textContent = npc.name;
+
+  const pic = npc.img
+    ? `<img src="${npc.img}" alt="${npc.name}" style="width:160px;height:160px;object-fit:cover;border-radius:14px;">`
+    : `<div style="width:160px;height:160px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);color:var(--muted);">無圖片</div>`;
+
+  const rows = (npc.sells && npc.sells.length)
+    ? npc.sells.map(s =>
+        `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);">
+           <span>${s.item}</span>
+           <span style="color:var(--muted);">${s.price} ${s.currency}</span>
+         </div>`
+      ).join('')
+    : `<div class="empty">目前沒有販賣清單。</div>`;
+
   view.innerHTML = `
-    <div class="placeholder">
-      <div class="big">₪</div>
-      <p>NPC 販賣清單建置中。</p>
-      <p style="font-size:14px;">這個系統會沿用和符文完全一樣的做法：<br>一份獨立的資料 + 自動生成的清單。做好符文後複製過來即可。</p>
+    <button class="back" onclick="renderNpc()">← 返回 NPC 列表</button>
+    <div class="detail">
+      ${pic}
+      <div class="info">
+        <h2>${npc.name}</h2>
+        <div class="field"><div class="k">所在地 · Region</div><div class="v">${npc.region}</div></div>
+        <div class="field"><div class="k">介紹 · Info</div><div class="v">${npc.desc || "（尚未填寫）"}</div></div>
+        <div class="field"><div class="k">販賣清單 · Shop</div><div class="v">${rows}</div></div>
+      </div>
     </div>
   `;
 }
 
+
+
+  
 /* 切換畫面 */
 function go(v){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
