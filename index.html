@@ -213,6 +213,7 @@
     <nav id="nav">
       <button class="nav-btn active" data-view="home"><span class="ico">⌂</span>首頁</button>
       <button class="nav-btn" data-view="npc"><span class="ico">🧝</span>NPC介紹</button>
+      <button class="nav-btn" data-view="job"><span class="ico">⚔️</span>職業介紹</button>
       <button class="nav-btn" data-view="life"><span class="ico">⛏️</span>生活技能</button>
       <button class="nav-btn" data-view="rune"><span class="ico">🛡️</span>裝備查詢</button>
       <button class="nav-btn" data-view="rune"><span class="ico">ᚱ</span>符文查詢</button>
@@ -367,6 +368,55 @@
     },
   ];
 
+/*----以下為職業介紹與職業技能說明內容-------*/
+  
+const CATEGORIES = ["見習戰士", "見習弓手", "見習魔法師", "見習治癒師", "見習盜賊", "見習吟遊詩人"]; // 六大分類，換成真名
+
+const JOBS = [
+  { name:"戰士", category:"見習戰士" },
+  { name:"大劍戰士", category:"見習戰士" },
+  { name:"劍術士", category:"見習戰士" },
+  { name:"弓手", category:"見習弓手" },
+  { name:"長弓兵", category:"見習弓手" },
+  { name:"弩手", category:"見習弓手" },
+  { name:"魔法師", category:"見習魔法師" },
+  { name:"冰霜術士", category:"見習魔法師" },
+  { name:"火焰術士", category:"見習魔法師" },
+  { name:"治癒師", category:"見習治癒師" },
+  { name:"祭司", category:"見習治癒師" },
+  { name:"修道士", category:"見習治癒師" },
+  { name:"盜賊", category:"見習盜賊" },
+  { name:"格鬥家", category:"見習盜賊" },
+  { name:"雙刀客", category:"見習盜賊" },
+  { name:"吟遊詩人", category:"見習吟遊詩人" },
+  { name:"樂師", category:"見習吟遊詩人" },
+  { name:"舞者", category:"見習吟遊詩人" },
+  
+  // 之後多的職業，照這樣一筆一筆加，標好它屬於哪個分類
+];
+
+  const JOBTAGS = {
+    noTrade: { name:"無法交易"},
+    canALLStore: { name:"可使用公用保管箱"},
+    canSell: { name:"可販售"},
+    material: { name:"材料"},
+  };
+
+
+  const JOBS = [
+    {
+      name: "戰士",
+      category: "見習戰士",
+      desc: "",
+      skills:[
+        {name: "A", type: "active", desc: "", variants:[{rune:"A+符文", effect:""},{rune:"B+符文", effect:""}]},
+        {name: "1", type: "passive", desc: "", },
+      ],
+      
+    },
+  ];
+  
+  
 /* ===================================================================
    ↓↓↓ 以下是「程式／模板」，負責把上面的資料變成畫面。平常不用改。 ↓↓↓
    =================================================================== */
@@ -608,6 +658,34 @@ function showNpc(idx){                                                    // idx
 }
 // 想加新清單(如戰鬥需求)：上面 view 裡多一行 ${section('戰鬥 · Fight', npc.fight)}，再到 NPC 資料加 fight 欄位(兩邊名字要一致)
 
+  /* 職業：第二層，職業詳情頁（介紹 + 主動/被動技能）*/
+function showJob(idx){
+  const job = JOBS[idx];
+  pageTitle.textContent = job.name;
+
+  // 小工具：做一欄技能（標題 + 該類技能的可點卡片）
+  const col = (title, type) => {
+    const list = (job.skills || []).filter(s => s.type === type);   // 篩出主動或被動
+    const cards = list.length
+      ? list.map(s => {
+          const sIdx = job.skills.indexOf(s);   // 它在 job.skills 的真實編號，給第三層用
+          return `<div class="item-card" onclick="showJobSkill(${idx},${sIdx})">
+                    <div class="iname">${s.name}</div>
+                    ${s.desc ? `<div class="idesc">${s.desc}</div>` : ''}
+                  </div>`;
+        }).join('')
+      : `<div class="empty">尚未建置。</div>`;
+    return `<div class="col"><h3>${title}</h3><div class="skill-list">${cards}</div></div>`;
+  };
+
+  view.innerHTML = `
+    <button class="back" onclick="renderJobs()">← 返回職業列表</button>
+    <div class="hero"><h2>${job.name}</h2><p>${job.desc || "（職業介紹尚未填寫）"}</p></div>
+    <div class="two-col">
+      ${col('主動技能', 'active')}
+      ${col('被動技能', 'passive')}
+    </div>`;
+}
 
   
 /* 切換畫面 */
