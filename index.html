@@ -373,24 +373,31 @@
 const CATEGORIES = ["見習戰士", "見習弓手", "見習魔法師", "見習治癒師", "見習盜賊", "見習吟遊詩人"]; // 六大分類，換成真名
 
 const JOBS = [
-  { name:"戰士", category:"見習戰士" },
-  { name:"大劍戰士", category:"見習戰士" },
-  { name:"劍術士", category:"見習戰士" },
-  { name:"弓手", category:"見習弓手" },
-  { name:"長弓兵", category:"見習弓手" },
-  { name:"弩手", category:"見習弓手" },
-  { name:"魔法師", category:"見習魔法師" },
-  { name:"冰霜術士", category:"見習魔法師" },
-  { name:"火焰術士", category:"見習魔法師" },
-  { name:"治癒師", category:"見習治癒師" },
-  { name:"祭司", category:"見習治癒師" },
-  { name:"修道士", category:"見習治癒師" },
-  { name:"盜賊", category:"見習盜賊" },
-  { name:"格鬥家", category:"見習盜賊" },
-  { name:"雙刀客", category:"見習盜賊" },
-  { name:"吟遊詩人", category:"見習吟遊詩人" },
-  { name:"樂師", category:"見習吟遊詩人" },
-  { name:"舞者", category:"見習吟遊詩人" },
+  {
+    name:"戰士", category:"見習戰士", desc:"",
+    skills:[
+      { name:"A", type:"active",  desc:"", variants:[ {rune:"A+符文", effect:""}, {rune:"B+符文", effect:""} ] },
+      { name:"1", type:"passive", desc:"" },
+    ],
+  },
+  { name:"大劍戰士", category:"見習戰士",   desc:"", skills:[] },
+  { name:"劍術士",   category:"見習戰士",   desc:"", skills:[] },
+  { name:"弓手",     category:"見習弓手",   desc:"", skills:[] },
+  { name:"長弓兵",   category:"見習弓手",   desc:"", skills:[] },
+  { name:"弩手",     category:"見習弓手",   desc:"", skills:[] },
+  { name:"魔法師",   category:"見習魔法師", desc:"", skills:[] },
+  { name:"冰霜術士", category:"見習魔法師", desc:"", skills:[] },
+  { name:"火焰術士", category:"見習魔法師", desc:"", skills:[] },
+  { name:"治癒師",   category:"見習治癒師", desc:"", skills:[] },
+  { name:"祭司",     category:"見習治癒師", desc:"", skills:[] },
+  { name:"修道士",   category:"見習治癒師", desc:"", skills:[] },
+  { name:"盜賊",     category:"見習盜賊",   desc:"", skills:[] },
+  { name:"格鬥家",   category:"見習盜賊",   desc:"", skills:[] },
+  { name:"雙刀客",   category:"見習盜賊",   desc:"", skills:[] },
+  { name:"吟遊詩人", category:"見習吟遊詩人", desc:"", skills:[] },
+  { name:"樂師",     category:"見習吟遊詩人", desc:"", skills:[] },
+  { name:"舞者",     category:"見習吟遊詩人", desc:"", skills:[] },
+];
   
   // 之後多的職業，照這樣一筆一筆加，標好它屬於哪個分類
 ];
@@ -401,20 +408,6 @@ const JOBS = [
     canSell: { name:"可販售"},
     material: { name:"材料"},
   };
-
-
-  const JOBS = [
-    {
-      name: "戰士",
-      category: "見習戰士",
-      desc: "",
-      skills:[
-        {name: "A", type: "active", desc: "", variants:[{rune:"A+符文", effect:""},{rune:"B+符文", effect:""}]},
-        {name: "1", type: "passive", desc: "", },
-      ],
-      
-    },
-  ];
   
   
 /* ===================================================================
