@@ -529,23 +529,6 @@ function renderLife(){
     const label = type==='gather' ? '採集' : '製作';
     pageTitle.textContent = s.name;
 
-
- /* 攻略專區的內容 */
-    
-  function renderGuide(){                                       // 攻略專區：目前兩區都先掛「維護中」
-    pageTitle.textContent = "攻略專區";
-  
-    const wip = "🚧 維護中，內容整理中，敬請期待。";              // 之後有內容時，再換成會讀資料的卡片
-  
-    const section = (label) =>                                  // 一個區塊 = 小標題 + 維護中提示
-      `<h3 style="color:var(--gold);margin:24px 0 12px;">${label}</h3>
-       <div class="empty">${wip}</div>`;
-  
-    view.innerHTML = section('文章攻略') + section('影片攻略');   // 兩區疊在同一頁
-  }
-
-
-    
     // 有 drops 就把每個道具做成一張「小卡」：名稱＋標籤＋簡介，可點
     let dropsHtml = '';
     if (s.drops && s.drops.length > 0) {
@@ -571,6 +554,21 @@ function renderLife(){
       ${dropsHtml}`;
   }
 
+ /* 攻略專區的內容 */
+    
+  function renderGuide(){                                       // 攻略專區：目前兩區都先掛「維護中」
+    pageTitle.textContent = "攻略專區";
+  
+    const wip = "🚧 維護中，內容整理中，敬請期待。";              // 之後有內容時，再換成會讀資料的卡片
+  
+    const section = (label) =>                                  // 一個區塊 = 小標題 + 維護中提示
+      `<h3 style="color:var(--gold);margin:24px 0 12px;">${label}</h3>
+       <div class="empty">${wip}</div>`;
+  
+    view.innerHTML = section('文章攻略') + section('影片攻略');   // 兩區疊在同一頁
+  }
+
+  
     /* 【翻譯小工具】把一串標籤代號翻成中文小藥丸。小卡和詳情頁共用這一個。
      tagKeys 例如 ["canSell","material"]，回傳已套好樣式的 HTML。 */
   function renderTags(tagKeys){
