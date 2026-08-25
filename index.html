@@ -217,6 +217,7 @@
       <button class="nav-btn" data-view="life"><span class="ico">⛏️</span>生活技能</button>
       <button class="nav-btn" data-view="rune"><span class="ico">🛡️</span>裝備查詢</button>
       <button class="nav-btn" data-view="rune"><span class="ico">ᚱ</span>符文查詢</button>
+      <button class="nav-btn" data-view="guide"><span class="ico">📖</span>攻略專區</button>
       
     </nav>
     <div class="side-foot">建置中 · 資料持續更新</div>
@@ -408,6 +409,8 @@ const JOBS = [
     material: { name:"材料"},
   };
   
+
+
   
 /* ===================================================================
    ↓↓↓ 以下是「程式／模板」，負責把上面的資料變成畫面。平常不用改。 ↓↓↓
@@ -526,6 +529,23 @@ function renderLife(){
     const label = type==='gather' ? '採集' : '製作';
     pageTitle.textContent = s.name;
 
+
+ /* 攻略專區的內容 */
+    
+  function renderGuide(){                                       // 攻略專區：目前兩區都先掛「維護中」
+    pageTitle.textContent = "攻略專區";
+  
+    const wip = "🚧 維護中，內容整理中，敬請期待。";              // 之後有內容時，再換成會讀資料的卡片
+  
+    const section = (label) =>                                  // 一個區塊 = 小標題 + 維護中提示
+      `<h3 style="color:var(--gold);margin:24px 0 12px;">${label}</h3>
+       <div class="empty">${wip}</div>`;
+  
+    view.innerHTML = section('文章攻略') + section('影片攻略');   // 兩區疊在同一頁
+  }
+
+
+    
     // 有 drops 就把每個道具做成一張「小卡」：名稱＋標籤＋簡介，可點
     let dropsHtml = '';
     if (s.drops && s.drops.length > 0) {
@@ -736,6 +756,7 @@ function go(v){
   else if(v==='npc') renderNpc();
   else if(v==='life') renderLife();
   else if(v==='job') renderJobs();
+  else if(v==='guide') renderGuide();
   closeMenu();
 }
 function setRuneFilter(r){ runeFilter=r; renderRuneGallery(); }
