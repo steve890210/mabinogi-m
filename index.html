@@ -675,6 +675,34 @@ function showJob(idx){
   const job = JOBS[idx];
   pageTitle.textContent = job.name;
 
+  /* 職業：第三層，單一技能詳情（基礎說明 + 符文變體）*/
+function showJobSkill(jobIdx, skillIdx){
+  const job = JOBS[jobIdx];
+  const skill = job.skills[skillIdx];
+  pageTitle.textContent = skill.name;
+
+  const typeLabel = skill.type === 'active' ? '主動技能' : '被動技能';
+
+  // 符文變體：有才顯示，一個變體一行「符文 → 效果」
+  let variantHtml = '';
+  if (skill.variants && skill.variants.length > 0) {
+    const rows = skill.variants.map(v => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--line);">
+        <span style="color:var(--gold);">${v.rune}</span>
+        <span style="color:var(--muted);"> → </span>
+        <span>${v.effect || "（效果尚未填寫）"}</span>
+      </div>`).join('');
+    variantHtml = `
+      <p class="sec-label">符文變體 · Rune Variants</p>
+      <div class="skill-list">${rows}</div>`;
+  }
+
+  view.innerHTML = `
+    <button class="back" onclick="showJob(${jobIdx})">← 返回 ${job.name}</button>
+    <div class="hero"><h2>${skill.name}</h2><p>分類：${typeLabel}<br>${skill.desc || "（說明尚未填寫）"}</p></div>
+    ${variantHtml}`;
+}
+
   // 小工具：做一欄技能（標題 + 該類技能的可點卡片）
   const col = (title, type) => {
     const list = (job.skills || []).filter(s => s.type === type);   // 篩出主動或被動
