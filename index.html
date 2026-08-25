@@ -649,7 +649,27 @@ function showNpc(idx){                                                    // idx
   `;
 }
 // 想加新清單(如戰鬥需求)：上面 view 裡多一行 ${section('戰鬥 · Fight', npc.fight)}，再到 NPC 資料加 fight 欄位(兩邊名字要一致)
+  
+/* 職業：第一層，照分類排出職業卡片 */
+function renderJobs(){
+  pageTitle.textContent = "職業介紹";
 
+  const card = (job) => {
+    const idx = JOBS.indexOf(job);
+    return `<div class="rune" onclick="showJob(${idx})"><div class="rname">${job.name}</div></div>`;
+  };
+
+  const sections = CATEGORIES.map(cat => {
+    const list = JOBS.filter(job => job.category === cat);
+    const cards = list.length
+      ? `<div class="gallery">${list.map(card).join('')}</div>`
+      : `<div class="empty">這個分類還沒有職業。</div>`;
+    return `<h3 style="color:var(--gold);margin:24px 0 12px;">${cat}</h3>${cards}`;
+  }).join('');
+
+  view.innerHTML = sections;
+}
+ 
   /* 職業：第二層，職業詳情頁（介紹 + 主動/被動技能）*/
 function showJob(idx){
   const job = JOBS[idx];
@@ -687,6 +707,7 @@ function go(v){
   else if(v==='rune'){ runeFilter="全部"; runeSearch=""; renderRuneGallery(); }
   else if(v==='npc') renderNpc();
   else if(v==='life') renderLife();
+  else if(v==='job') renderJobs();
   closeMenu();
 }
 function setRuneFilter(r){ runeFilter=r; renderRuneGallery(); }
