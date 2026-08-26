@@ -253,16 +253,33 @@
 
    ※ 目前這些都是「範例假資料」，不是真實遊戲數據，之後由你替換。
    =================================================================== */
-   const RUNES = [
-     { name:"範例符文・炎", rarity:"傳說", effect:"攻擊時附加額外火焰傷害，並有機率造成灼燒。", source:"傳說副本「灰燼之塔」最終王掉落。", glyph:"ᚠ" },
-     { name:"範例符文・霜", rarity:"稀有", effect:"受到攻擊時，有機率減緩敵方移動速度。",       source:"冰原地區任務線完成後獲得。",       glyph:"ᛁ" },
-     { name:"範例符文・風", rarity:"普通", effect:"小幅提升移動速度。",                     source:"新手商店以金幣購買。",             glyph:"ᚹ" },
-     { name:"範例符文・雷", rarity:"傳說", effect:"技能命中時累積雷荷，滿層爆發範圍傷害。",     source:"限時活動「雷鳴祭」兌換。",         glyph:"ᛊ" },
-     { name:"範例符文・土", rarity:"稀有", effect:"提升防禦力，並小幅增加最大生命值。",         source:"礦坑深層寶箱隨機掉落。",           glyph:"ᛖ" },
-     { name:"範例符文・光", rarity:"稀有", effect:"施放治療時，額外恢復少量魔力。",             source:"神殿聲望商店兌換。",               glyph:"ᛞ" },
-     { name:"範例符文・影", rarity:"傳說", effect:"暴擊率提升，暴擊時短暫隱身。",               source:"夜間限定王「影狼」掉落。",         glyph:"ᚦ" },
-     { name:"範例符文・水", rarity:"普通", effect:"小幅提升魔力回復速度。",                   source:"釣魚系統一定機率獲得。",           glyph:"ᛚ" },
-   ];
+/* 符文資料。一張卡＝一顆符文。加新符文就複製一整組 { ... } 改字即可 */
+const RUNES = [
+  {
+    name:"千錘百鍊",              // 符文名稱
+    category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
+    grade:"傳說",                 // 稀有度，去 GRADES 查顏色與詛咒機率
+    stats:"攻擊力+550",           // 明確數值加成
+    effect:"強化至+10時攻擊力增加12%；強化至+15時額外增加8%",   // 符文本身效果
+    gradeEffect:"所有技能強化+1，隨機三個技能強化+2",            // 稀有度效果（每顆都有）
+    tags:[],                      // 之後要標「可販售」等再填，先空著
+    glyph:"",                     // 圖示，之後補；空著會自動用名字第一個字代替
+  },
+
+  /* ↓↓ 以下兩筆是「範例」，方便你比對畫面，確認沒問題後換成真符文 ↓↓ */
+  {
+    name:"守護", category:"防具符文", grade:"菁英",
+    stats:"防禦力+380", effect:"受到攻擊時，有機率減少15%傷害",
+    gradeEffect:"所有技能強化+1，隨機兩個技能強化+2", tags:[], glyph:"",
+  },
+  {
+    name:"迅捷", category:"飾品符文", grade:"高級",
+    stats:"移動速度+8%", effect:"脫離戰鬥後移動速度再提升",
+    gradeEffect:"隨機一個技能強化+1", tags:[], glyph:"",
+  },
+];
+
+  
    /* 生活技能・採集技能清單。加一個就多一行 { name:"名稱" } */
   const GATHER = [
     { name:"日常採集", desc:"徒手在周遭採集各種材料。" },
@@ -338,6 +355,45 @@
     material: { name:"材料"},
   };
 
+/*--- 以下是各種稀有度的標籤與顏色內容，可在往下延伸---*/
+  
+  const GRADES ={
+    一般: { name:"一般", color:"#FFFFFF"},
+    高級: { name:"高級", color:"#00DB00", curse:"0%" },
+    稀有: { name:"稀有", color:"#0000C6", curse:"40%" },
+    菁英: { name:"菁英", color:"#D200D2", curse:"60%" },
+    史詩: { name:"史詩", color:"#FF60AF", curse:"75%" },
+    傳說: { name:"傳說", color:"#FF8000", curse:"75%" },
+    神話: { name:"神話", color:"#FFE66F"},
+    獨特: { name:"獨特", color:"#E6E6F2"},
+  };
+
+/*----以下是裝備的標籤分類，可在往下延伸---*/
+  
+  const EQUIP_CATEGORIES = {
+    武器: { name:"武器"},
+    防具: { name:"防具"},
+    飾品: { name:"飾品"},
+    徽章: { name:"徽章"},
+  };
+
+/*----以下是非裝備類別，包含時裝和活動道具的標籤分類，可在往下延伸---*/
+  
+  const ITEM_CATEGORIES = {
+    材料: { name:"材料"},
+    貨幣: { name:"貨幣"},
+    消耗品: { name:"消耗品"},
+  };
+
+/*----以下是符文的標籤分類，可在往下延伸---*/
+  
+  const RUNE_CATEGORIES = {
+    武器符文: { name:"武器符文"},
+    防具符文: { name:"防具符文"},
+    飾品符文: { name:"飾品符文"},
+    徽章符文: { name:"徽章符文"},
+  };
+  
      
    /* NPC 資料之後也會用同一套做法放在這裡，先留空示範。 */
    const REGIONS = ["提爾克那", "杜加德走廊", "杜巴頓","希德斯特雪原","庫漢"]; 
@@ -418,8 +474,6 @@ const JOBS = [
    ↓↓↓ 以下是「程式／模板」，負責把上面的資料變成畫面。平常不用改。 ↓↓↓
    =================================================================== */
 
-const rarityColor = { "普通":"var(--r-common)", "稀有":"var(--r-rare)", "傳說":"var(--r-legend)" };
-
 const view = document.getElementById('view');
 const pageTitle = document.getElementById('pageTitle');
 let runeFilter = "全部";
@@ -450,19 +504,16 @@ function renderHome(){
 /* 符文：圖案牆 */
 function renderRuneGallery(){
   pageTitle.textContent = "符文查詢";
-  const chips = ["全部","普通","稀有","傳說"].map(r=>
-    `<button class="chip ${runeFilter===r?'active':''}" onclick="setRuneFilter('${r}')">${r}</button>`).join('');
-
+  const grades = ["全部", ...Object.keys(GRADES)];                              // 「全部」＋所有稀有度，按鈕照 GRADES 自動長出來
+  const chips = grades.map(g =>
+    `<button class="chip ${runeFilter===g?'active':''}" onclick="setRuneFilter('${g}')">${g}</button>`).join('');
   view.innerHTML = `
     <div class="tools">
-      <div class="search">
-        <span class="mag">⌕</span>
-        <input id="runeInput" type="text" placeholder="搜尋符文名稱或效果…" value="${runeSearch}">
-      </div>
+      <div class="search"><span class="mag">⌕</span>
+        <input id="runeInput" type="text" placeholder="搜尋符文名稱或效果…" value="${runeSearch}"></div>
       <div class="chips">${chips}</div>
     </div>
-    <div class="gallery" id="gallery"></div>
-  `;
+    <div class="gallery" id="gallery"></div>`;
   const input = document.getElementById('runeInput');
   input.addEventListener('input', e=>{ runeSearch = e.target.value; drawGallery(); });
   input.focus();
@@ -472,19 +523,21 @@ function renderRuneGallery(){
 function drawGallery(){
   const q = runeSearch.trim();
   const list = RUNES.filter(r=>{
-    const okRarity = runeFilter==="全部" || r.rarity===runeFilter;
-    const okSearch = !q || r.name.includes(q) || r.effect.includes(q);
-    return okRarity && okSearch;
+    const okGrade = runeFilter==="全部" || r.grade===runeFilter;                // 稀有度篩選改用 grade
+    const text = r.name + r.stats + r.effect + r.gradeEffect;                   // 搜尋範圍：名稱＋數值＋效果
+    return okGrade && (!q || text.includes(q));
   });
   const g = document.getElementById('gallery');
   if(list.length===0){ g.innerHTML = `<div class="empty">找不到符合的符文。</div>`; return; }
   g.innerHTML = list.map(r=>{
     const idx = RUNES.indexOf(r);
-    const c = rarityColor[r.rarity];
+    const c = (GRADES[r.grade] || {}).color || "var(--muted)";                  // 顏色去 GRADES 查，查不到用灰色防呆
+    const catName = (RUNE_CATEGORIES[r.category] || {}).name || r.category;      // 種類顯示名
     return `<div class="rune" onclick="showRune(${idx})">
-      <div class="glyph" style="color:${c};background:${c}18;">${r.glyph}</div>
+      <div class="glyph" style="color:${c};background:${c}18;">${r.glyph || r.name[0]}</div>
       <div class="rname">${r.name}</div>
-      <span class="badge" style="color:${c};border-color:${c};">${r.rarity}</span>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${catName}</div>
+      <span class="badge" style="color:${c};border-color:${c};">${r.grade}</span>
     </div>`;
   }).join('');
 }
@@ -492,20 +545,27 @@ function drawGallery(){
 /* 符文：詳情 */
 function showRune(idx){
   const r = RUNES[idx];
-  const c = rarityColor[r.rarity];
-  pageTitle.textContent = "符文詳情";
+  const g = GRADES[r.grade] || {};                                              // 這顆的稀有度資料（顏色、詛咒機率）
+  const c = g.color || "var(--muted)";
+  const catName = (RUNE_CATEGORIES[r.category] || {}).name || r.category;
+  const curse = g.curse || "（未設定）";                                          // 詛咒機率：從 GRADES 查
+  pageTitle.textContent = r.name;
+  const field = (title, value) =>                                              // 有值才顯示一個欄位，沒值自動消失
+    value ? `<div class="field"><div class="k">${title}</div><div class="v">${value}</div></div>` : '';
   view.innerHTML = `
     <button class="back" onclick="renderRuneGallery()">← 返回符文列表</button>
     <div class="detail">
-      <div class="big-glyph" style="color:${c};background:${c}14;">${r.glyph}</div>
+      <div class="big-glyph" style="color:${c};background:${c}14;">${r.glyph || r.name[0]}</div>
       <div class="info">
         <h2>${r.name}</h2>
-        <span class="badge" style="color:${c};border-color:${c};">${r.rarity}</span>
-        <div class="field"><div class="k">效果 · Effect</div><div class="v">${r.effect}</div></div>
-        <div class="field"><div class="k">獲取方式 · Source</div><div class="v">${r.source}</div></div>
+        <span class="badge" style="color:${c};border-color:${c};">${r.grade}</span>
+        <span class="badge" style="margin-left:6px;color:var(--muted);border-color:var(--line);">${catName}</span>
+        ${field('數值加成 · Stats', r.stats)}
+        ${field('效果 · Effect', r.effect)}
+        ${field('稀有度效果 · Grade Effect', r.gradeEffect)}
+        ${field('詛咒機率 · Curse', curse)}
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 /* 生活技能頁介紹 */
