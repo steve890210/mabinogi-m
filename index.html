@@ -138,9 +138,8 @@
   }
   .rune:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 8px 22px rgba(0,0,0,.35);}
   .rune .glyph{
-    font-size:44px;line-height:1;margin-bottom:12px;
-    /* 這個符文字元是「假圖」，之後會換成真正的圖片 */
-    display:flex;align-items:center;justify-content:center;height:72px;border-radius:10px;
+    font-size:30px;line-height:1;margin-bottom:12px;                                    /* 44 → 30，字跟著縮 */
+    display:flex;align-items:center;justify-content:center;height:48px;border-radius:10px;  /* 72 → 48，格子縮 1/3 */
   }
   .rune .rname{font-size:15px;font-weight:500;margin-bottom:6px;}
   .badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid;}
@@ -542,7 +541,7 @@ function renderRuneGallery(){
         <input id="runeInput" type="text" placeholder="搜尋符文名稱或效果…" value="${runeSearch}"></div>
       <div class="chips">${chips}</div>
     </div>
-    <div class="gallery" id="gallery"></div>`;
+    <div id="gallery"></div>`;
   const input = document.getElementById('runeInput');
   input.addEventListener('input', e=>{ runeSearch = e.target.value; drawGallery(); });
   input.focus();
@@ -553,7 +552,7 @@ function drawGallery(){
   const q = runeSearch.trim();
   const gradeOrder = Object.keys(GRADES);                                       // 稀有度順序：一般→…→獨特
 
-  // 先篩選（稀有度按鈕＋搜尋字），跟原本一樣
+  // 先篩選（稀有度按鈕＋搜尋字）
   const filtered = RUNES.filter(r=>{
     const okGrade = runeFilter==="全部" || r.grade===runeFilter;
     const text = r.name + r.stats + r.effect + r.gradeEffect;
@@ -563,11 +562,10 @@ function drawGallery(){
   const g = document.getElementById('gallery');
   if(filtered.length===0){ g.innerHTML = `<div class="empty">找不到符合的符文。</div>`; return; }
 
-  // 小工具：把一顆符文做成一張卡（跟原本一樣）
+  // 小工具：把一顆符文做成一張卡
   const card = (r) => {
     const idx = RUNES.indexOf(r);
     const c = (GRADES[r.grade] || {}).color || "var(--muted)";
-    const catName = (RUNE_CATEGORIES[r.category] || {}).name || r.category;
     return `<div class="rune" onclick="showRune(${idx})">
       <div class="glyph" style="color:${c};background:${c}18;">${r.glyph || r.name[0]}</div>
       <div class="rname">${r.name}</div>
@@ -575,20 +573,20 @@ function drawGallery(){
     </div>`;
   };
 
-  // 照 RUNE_CATEGORIES 的順序，一個種類一個區塊（標題＋底下的卡片）
+  // 照 RUNE_CATEGORIES 的順序，一個種類一個區塊（標題＋底下卡片橫向排）
   const sections = Object.keys(RUNE_CATEGORIES).map(cat => {
     const inCat = filtered
-      .filter(r => r.category === cat)                                          // 篩出屬於這個種類的符文
-      .sort((a,b)=> gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade)); // 種類內照稀有度由低到高排
+      .filter(r => r.category === cat)                                          // 挑出這個種類的符文
+      .sort((a,b)=> gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade)); // 種類內照稀有度由低到高
     if (inCat.length === 0) return '';                                          // 這種類沒符文→整區不顯示
     const catName = RUNE_CATEGORIES[cat].name;
     return `<h3 style="color:var(--gold);margin:24px 0 12px;">${catName}</h3>
-            <div class="gallery">${inCat.map(card).join('')}</div>`;
+            <div class="gallery">${inCat.map(card).join('')}</div>`;            // 內層才用 gallery 讓卡片橫向排
   }).join('');
 
   g.innerHTML = sections;
 }
-
+  
 /* 符文：詳情 */
 function showRune(idx){
   const r = RUNES[idx];
