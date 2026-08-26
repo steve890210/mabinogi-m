@@ -522,16 +522,25 @@ function renderRuneGallery(){
 
 function drawGallery(){
   const q = runeSearch.trim();
+
+  const catOrder   = Object.keys(RUNE_CATEGORIES);   // 種類順序＝表裡的先後：武器→防具→飾品→徽章
+  const gradeOrder = Object.keys(GRADES);            // 稀有度順序＝表裡的先後：一般→…→獨特
+
   const list = RUNES.filter(r=>{
     const okGrade = runeFilter==="全部" || r.grade===runeFilter;                // 稀有度篩選改用 grade
     const text = r.name + r.stats + r.effect + r.gradeEffect;                   // 搜尋範圍：名稱＋數值＋效果
     return okGrade && (!q || text.includes(q));
+  }).sort((a,b)=>{                                                              // 先照種類排，同種類再照稀有度排
+    const catDiff = catOrder.indexOf(a.category) - catOrder.indexOf(b.category);
+    if (catDiff !== 0) return catDiff;                                          // 種類不同→照種類順序
+    return gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade);          // 種類相同→照稀有度順序
   });
+
   const g = document.getElementById('gallery');
   if(list.length===0){ g.innerHTML = `<div class="empty">找不到符合的符文。</div>`; return; }
   g.innerHTML = list.map(r=>{
     const idx = RUNES.indexOf(r);
-    const c = (GRADES[r.grade] || {}).color || "var(--muted)";                  // 顏色去 GRADES 查，查不到用灰色防呆
+    const c = (GRADES[r.grade] || {}).color || "var(--muted)";                  // 顏色去 GRADES 查
     const catName = (RUNE_CATEGORIES[r.category] || {}).name || r.category;      // 種類顯示名
     return `<div class="rune" onclick="showRune(${idx})">
       <div class="glyph" style="color:${c};background:${c}18;">${r.glyph || r.name[0]}</div>
