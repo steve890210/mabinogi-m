@@ -266,6 +266,7 @@ const RUNES = [
   },
   {
     name:"致命",              // 符文名稱
+    star: 0,
     category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
     grade:"高級",                 // 稀有度，去 GRADES 查顏色與詛咒機率
     stats:"攻擊力+20，暴擊+14",           // 明確數值加成
@@ -276,6 +277,7 @@ const RUNES = [
   },
    {
     name:"加速",              // 符文名稱
+    star: 0,
     category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
     grade:"高級",                 // 稀有度，去 GRADES 查顏色與詛咒機率
     stats:"攻擊力+20，快速技能+14",           // 明確數值加成
@@ -286,6 +288,7 @@ const RUNES = [
   },
   {
     name:"衝擊",              // 符文名稱
+    star: 0,
     category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
     grade:"高級",                 // 稀有度，去 GRADES 查顏色與詛咒機率
     stats:"攻擊力+20，技能威力+14",           // 明確數值加成
@@ -296,6 +299,7 @@ const RUNES = [
   },
   {
     name:"機會",              // 符文名稱
+    star: 1,
     category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
     grade:"高級",                 // 稀有度，去 GRADES 查顏色與詛咒機率
     stats:"攻擊力+41，暴擊+29",           // 明確數值加成
@@ -306,6 +310,7 @@ const RUNES = [
   },
   {
     name:"迅速",              // 符文名稱
+    star: 1,
     category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
     grade:"高級",                 // 稀有度，去 GRADES 查顏色與詛咒機率
     stats:"攻擊力+41，快速技能+29",           // 明確數值加成
@@ -316,6 +321,7 @@ const RUNES = [
   },
   {
     name:"鬥志",              // 符文名稱
+    star: 1,
     category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
     grade:"高級",                 // 稀有度，去 GRADES 查顏色與詛咒機率
     stats:"攻擊力+41，技能威力+29",           // 明確數值加成
@@ -326,6 +332,7 @@ const RUNES = [
   },
   {
     name:"技巧",              // 符文名稱
+    star: 1,
     category:"武器符文",          // 種類，去 RUNE_CATEGORIES 查顯示名
     grade:"高級",                 // 稀有度，去 GRADES 查顏色與詛咒機率
     stats:"攻擊力+41，破防+29",           // 明確數值加成
@@ -629,6 +636,7 @@ function drawGallery(){
     return `<div class="rune" onclick="showRune(${idx})">
       <div class="glyph" style="color:${c};background:${c}18;">${r.glyph || r.name[0]}</div>
       <div class="rname">${r.name}</div>
+      <div style="color:#f5c518;font-size:13px;margin-bottom:6px;">${r.star||0}★</div>   <!-- 外層：數字＋一顆星 -->
       <span class="badge" style="color:${c};border-color:${c};">${r.grade}</span>
     </div>`;
   };
@@ -637,7 +645,11 @@ function drawGallery(){
   const sections = Object.keys(RUNE_CATEGORIES).map(cat => {
     const inCat = filtered
       .filter(r => r.category === cat)                                          // 挑出這個種類的符文
-      .sort((a,b)=> gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade)); // 種類內照稀有度由低到高
+      .sort((a,b)=>{
+        const gd = gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade);  // 先照稀有度
+        if (gd !== 0) return gd;                                               // 稀有度不同→照稀有度
+        return (a.star||0) - (b.star||0);                                       // 稀有度相同→再照星星，少的排前面
+      });
     if (inCat.length === 0) return '';                                          // 這種類沒符文→整區不顯示
     const catName = RUNE_CATEGORIES[cat].name;
     return `<h3 style="color:var(--gold);margin:24px 0 12px;">${catName}</h3>
@@ -655,6 +667,7 @@ function showRune(idx){
   const catName = (RUNE_CATEGORIES[r.category] || {}).name || r.category;
   const curse = g.curse || "（未設定）";                                          // 詛咒機率：從 GRADES 查
   pageTitle.textContent = r.name;
+  const starStr = "★".repeat(r.star||0);        // 把數字展開成整排星星，0 星就沒有
   const field = (title, value) =>                                              // 有值才顯示一個欄位，沒值自動消失
     value ? `<div class="field"><div class="k">${title}</div><div class="v">${value}</div></div>` : '';
   view.innerHTML = `
@@ -663,6 +676,7 @@ function showRune(idx){
       <div class="big-glyph" style="color:${c};background:${c}14;">${r.glyph || r.name[0]}</div>
       <div class="info">
         <h2>${r.name}</h2>
+        <div style="color:#f5c518;font-size:20px;margin:4px 0 8px;min-height:24px;">${starStr}</div>
         <span class="badge" style="color:${c};border-color:${c};">${r.grade}</span>
         <span class="badge" style="margin-left:6px;color:var(--muted);border-color:var(--line);">${catName}</span>
         ${field('數值加成 · Stats', r.stats)}
