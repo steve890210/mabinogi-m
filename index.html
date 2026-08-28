@@ -1634,7 +1634,7 @@ function showRune(idx){
   const g = GRADES[r.grade] || {};                                              // 這顆的稀有度資料（顏色、詛咒機率）
   const c = g.color || "var(--muted)";
   const catName = (RUNE_CATEGORIES[r.category] || {}).name || r.category;
-  const curse = g.curse || "（未設定）";                                          // 詛咒機率：從 GRADES 查
+  const curse = (r.category === "徽章符文") ? "0%" : (g.curse || "（未設定）");     // 徽章一律0%；其他照稀有度查                                      // 詛咒機率：從 GRADES 查
   pageTitle.textContent = r.name;
   const starStr = "★".repeat(r.star||0);        // 把數字展開成整排星星，0 星就沒有
   const field = (title, value) =>                                              // 有值才顯示一個欄位，沒值自動消失
