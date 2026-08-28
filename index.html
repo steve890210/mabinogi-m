@@ -2085,7 +2085,7 @@ function drawGallery(){
     if (r.category !== "飾品符文") return true;         // 非飾品→職業不管它，一律通過
     if (runeJob === "全部") return true;                // 選全部→飾品全過
     if (runeJob === "通用") return r.job === "通用";     // 選通用→只留通用
-    return r.job === runeJob || r.job === "通用";        // 選某職業→該職業＋通用一起顯示
+    return r.job === runeJob;        // 選某職業→該職業＋通用一起顯示
   };
 
   // 先篩選（種類＋稀有度＋職業＋搜尋字，全部成立才留下）
