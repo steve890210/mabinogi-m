@@ -1540,7 +1540,8 @@ const JOBS = [
 
 const view = document.getElementById('view');
 const pageTitle = document.getElementById('pageTitle');
-let runeFilter = "全部";
+let runeCats = [];      // 已選種類（空陣列＝全部）
+let runeGrades = [];    // 已選稀有度（空陣列＝全部）
 let runeSearch = "";
 
 /* 首頁 */
@@ -1568,19 +1569,35 @@ function renderHome(){
 /* 符文：圖案牆 */
 function renderRuneGallery(){
   pageTitle.textContent = "符文查詢";
-  const grades = ["全部", ...Object.keys(GRADES)];                              // 「全部」＋所有稀有度，按鈕照 GRADES 自動長出來
-  const chips = grades.map(g =>
-    `<button class="chip ${runeFilter===g?'active':''}" onclick="setRuneFilter('${g}')">${g}</button>`).join('');
+  const catItems   = ["全部", ...Object.keys(RUNE_CATEGORIES)];   // 種類按鈕清單
+  const gradeItems = ["全部", ...Object.keys(GRADES)];            // 稀有度按鈕清單
+
+  // 小工具：做一排按鈕。selected＝已選清單，空的就代表「全部」那顆亮
+  const chipRow = (items, selected, fnName) =>
+    items.map(x=>{
+      const active = (x==="全部") ? selected.length===0 : selected.includes(x);   // 有沒有被選中
+      return `<button class="chip ${active?'active':''}" onclick="${fnName}('${x}')">${x}</button>`;
+    }).join('');
+
   view.innerHTML = `
     <div class="tools">
-      <div class="search"><span class="mag">⌕</span>
+      <div class="search" style="flex:0 0 100%;"><span class="mag">⌕</span>
         <input id="runeInput" type="text" placeholder="搜尋符文名稱或效果…" value="${runeSearch}"></div>
-      <div class="chips">${chips}</div>
+
+      <div style="flex:0 0 100%;">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">種類</div>
+        <div class="chips">${chipRow(catItems, runeCats, 'toggleRuneCat')}</div>
+      </div>
+
+      <div style="flex:0 0 100%;">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">稀有度</div>
+        <div class="chips">${chipRow(gradeItems, runeGrades, 'toggleRuneGrade')}</div>
+      </div>
     </div>
     <div id="gallery"></div>`;
+
   const input = document.getElementById('runeInput');
   input.addEventListener('input', e=>{ runeSearch = e.target.value; drawGallery(); });
-  input.focus();
   drawGallery();
 }
 
@@ -1588,11 +1605,12 @@ function drawGallery(){
   const q = runeSearch.trim();
   const gradeOrder = Object.keys(GRADES);                                       // 稀有度順序：一般→…→獨特
 
-  // 先篩選（稀有度按鈕＋搜尋字）
+  // 先篩選（種類＋稀有度＋搜尋字，三個條件同時成立才留下）
   const filtered = RUNES.filter(r=>{
-    const okGrade = runeFilter==="全部" || r.grade===runeFilter;
+    const okCat   = runeCats.length===0   || runeCats.includes(r.category);   // 種類：沒選＝全部通過
+    const okGrade = runeGrades.length===0 || runeGrades.includes(r.grade);    // 稀有度：沒選＝全部通過
     const text = r.name + r.stats + r.effect + r.gradeEffect;
-    return okGrade && (!q || text.includes(q));
+    return okCat && okGrade && (!q || text.includes(q));
   });
 
   const g = document.getElementById('gallery');
@@ -1900,14 +1918,27 @@ function showJobSkill(jobIdx, skillIdx){
 function go(v){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
   if(v==='home') renderHome();
-  else if(v==='rune'){ runeFilter="全部"; runeSearch=""; renderRuneGallery(); }
+  else if(v==='rune'){ runeCats=[]; runeGrades=[]; runeSearch=""; renderRuneGallery(); }
   else if(v==='npc') renderNpc();
   else if(v==='life') renderLife();
   else if(v==='job') renderJobs();
   else if(v==='guide') renderGuide();
   closeMenu();
 }
-function setRuneFilter(r){ runeFilter=r; renderRuneGallery(); }
+// 切換種類：已選→取消、未選→加入；按「全部」→ 清空（＝顯示全部）
+function toggleRuneCat(x){
+  if(x==="全部"){ runeCats=[]; }
+  else if(runeCats.includes(x)){ runeCats = runeCats.filter(v=>v!==x); }   // 已在清單→移除
+  else { runeCats.push(x); }                                              // 不在→加入
+  renderRuneGallery();
+}
+// 稀有度同理
+function toggleRuneGrade(x){
+  if(x==="全部"){ runeGrades=[]; }
+  else if(runeGrades.includes(x)){ runeGrades = runeGrades.filter(v=>v!==x); }
+  else { runeGrades.push(x); }
+  renderRuneGallery();
+}
 
 document.getElementById('nav').addEventListener('click', e=>{
   const btn = e.target.closest('.nav-btn'); if(btn) go(btn.dataset.view);
