@@ -1543,6 +1543,7 @@ const pageTitle = document.getElementById('pageTitle');
 let runeCats = [];      // 已選種類（空陣列＝全部）
 let runeGrades = [];    // 已選稀有度（空陣列＝全部）
 let runeSearch = "";
+let runeJob = "全部";   // 職業下拉選單目前選的職業（全部＝不篩職業）
 
 /* 首頁 */
 function renderHome(){
@@ -1571,6 +1572,16 @@ function renderRuneGallery(){
   pageTitle.textContent = "符文查詢";
   const catItems   = ["全部", ...Object.keys(RUNE_CATEGORIES)];   // 種類按鈕清單
   const gradeItems = ["全部", ...Object.keys(GRADES)];            // 稀有度按鈕清單
+  const jobItems   = ["全部", "通用", ...JOBS.map(j=>j.name)];     // 職業選單：全部＋通用＋JOBS自動帶出的18職業
+  const showJob    = runeCats.includes("飾品符文");                // 有選飾品才顯示職業選單
+  const jobRow = showJob ? `
+      <div style="flex:0 0 100%;">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">職業（飾品專屬）</div>
+        <select onchange="setRuneJob(this.value)"
+          style="background:var(--panel-2);border:1px solid var(--line);color:var(--text);font-family:inherit;font-size:14px;padding:8px 12px;border-radius:8px;outline:none;">
+          ${jobItems.map(j=>`<option value="${j}" ${runeJob===j?'selected':''}>${j}</option>`).join('')}
+        </select>
+      </div>` : '';                                              // 沒選飾品→空字串＝整排不出現
 
   // 小工具：做一排按鈕。selected＝已選清單，空的就代表「全部」那顆亮
   const chipRow = (items, selected, fnName) =>
@@ -1593,6 +1604,7 @@ function renderRuneGallery(){
         <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">稀有度</div>
         <div class="chips">${chipRow(gradeItems, runeGrades, 'toggleRuneGrade')}</div>
       </div>
+      ${jobRow}
     </div>
     <div id="gallery"></div>`;
 
@@ -1606,11 +1618,22 @@ function drawGallery(){
   const gradeOrder = Object.keys(GRADES);                                       // 稀有度順序：一般→…→獨特
 
   // 先篩選（種類＋稀有度＋搜尋字，三個條件同時成立才留下）
+  // 職業篩選：只有「有選飾品」時才生效，而且只作用在飾品符文身上
+  const jobActive = runeCats.includes("飾品符文");
+  const okJob = (r) => {
+    if (!jobActive) return true;                       // 沒在篩飾品→職業條件不作用
+    if (r.category !== "飾品符文") return true;         // 非飾品→職業不管它，一律通過
+    if (runeJob === "全部") return true;                // 選全部→飾品全過
+    if (runeJob === "通用") return r.job === "通用";     // 選通用→只留通用
+    return r.job === runeJob || r.job === "通用";        // 選某職業→該職業＋通用一起顯示
+  };
+
+  // 先篩選（種類＋稀有度＋職業＋搜尋字，全部成立才留下）
   const filtered = RUNES.filter(r=>{
     const okCat   = runeCats.length===0   || runeCats.includes(r.category);   // 種類：沒選＝全部通過
     const okGrade = runeGrades.length===0 || runeGrades.includes(r.grade);    // 稀有度：沒選＝全部通過
     const text = r.name + r.stats + r.effect + r.gradeEffect;
-    return okCat && okGrade && (!q || text.includes(q));
+    return okCat && okGrade && okJob(r) && (!q || text.includes(q));
   });
 
   const g = document.getElementById('gallery');
@@ -1918,7 +1941,7 @@ function showJobSkill(jobIdx, skillIdx){
 function go(v){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
   if(v==='home') renderHome();
-  else if(v==='rune'){ runeCats=[]; runeGrades=[]; runeSearch=""; renderRuneGallery(); }
+  else if(v==='rune'){ runeCats=[]; runeGrades=[]; runeSearch=""; runeJob="全部"; renderRuneGallery(); }
   else if(v==='npc') renderNpc();
   else if(v==='life') renderLife();
   else if(v==='job') renderJobs();
@@ -1939,6 +1962,8 @@ function toggleRuneGrade(x){
   else { runeGrades.push(x); }
   renderRuneGallery();
 }
+// 職業下拉選單：選了就記起來、重畫
+function setRuneJob(v){ runeJob = v; renderRuneGallery(); }
 
 document.getElementById('nav').addEventListener('click', e=>{
   const btn = e.target.closest('.nav-btn'); if(btn) go(btn.dataset.view);
