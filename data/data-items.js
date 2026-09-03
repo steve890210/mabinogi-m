@@ -21,19 +21,47 @@
     坐騎: { name:"坐騎"},
     寵物: { name:"寵物"}, */
 
+/*---------------------------*
+  代號: {                          // 英文代號，全站唯一，之後用它互相連結
+    name: "顯示名稱",
+    category: "材料",              // 要跟 ITEM_CATEGORIES 的 key 一字不差
+    tags: ["canSell"],             // 多選，代號查 TAGS；沒有就寫 []
+    img: "",                       // 先留空
+    price: 5,                      // 賣店價；沒有就整行不寫
+    desc: "說明…<br>可換行。",
+    recipe: [                      // 只有「成品」才寫；純材料整行不用寫
+      { item: "corn", qty: 2 },    // item 填「材料的代號」，不是中文名
+/
 
 /* 瑪奇M的所有道具清單。 */
 const ITEMS = {
-  wheat: {
+  小麥: {
     name: "小麥", 
-    ITEM_CATEGORIES: "材料",
+    category: "材料", 
     tags: ["canALLStore","canSell"],
+    price: 1,
     desc: "結滿堅硬小顆粒的穀物。<br>可磨粉製作麵包或熬煮食用。<br>可在村莊的稻田中取得。"  },
-  corn: {
+  玉米: {
     name: "玉米",
+    category: "材料", 
     tags: ["canALLStore","canSell"],
     desc: "飽滿金黃顆粒整齊排列的玉米。<br>可進行各種料理食用。<br>可在村莊的稻田中取得。"  },
+  起司玉米: {
+    name: "起司玉米",
+    category: "食物", 
+    tags: ["canALLStore","canSell"],
+    img: "",                       // 先留空    
+    price: 5,                      // 賣店價；沒有就整行不寫
+    desc: "說明…<br>可換行。",
+    recipe: [                      // 只有「成品」才寫；純材料整行不用寫
+      { item: "玉米", qty: 10,
+        item: "起司", qty: 2,
+        item: "藥草", qty: 2,
+        item: "糖", qty: 3,
+      },    // item 填「材料的代號」，不是中文名
 };
+
+
 
  /* 瑪奇M的所有道具的物品標籤。
    ── 代號對照表（加道具時 tags 就填左邊的代號）──
