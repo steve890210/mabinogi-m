@@ -45,6 +45,7 @@ const ITEMS = {
     name: "玉米",
     category: "材料", 
     tags: ["canALLStore","canSell"],
+    price: 1,
     desc: "飽滿金黃顆粒整齊排列的玉米。<br>可進行各種料理食用。<br>可在村莊的稻田中取得。"  },
   起司玉米: {
     name: "起司玉米",
@@ -55,11 +56,12 @@ const ITEMS = {
     effect: "智力+25<br>幸運+25<br>持續時間:20分鐘
     desc: "說明…<br>可換行。",
     recipe: [                      // 只有「成品」才寫；純材料整行不用寫
-      { item: "玉米", qty: 10,
-        item: "起司", qty: 2,
-        item: "藥草", qty: 2,
-        item: "糖", qty: 3,
-      },    // item 填「材料的代號」，不是中文名
+      { item: "玉米", qty: 10},
+      {item: "起司", qty: 2},
+      {item: "藥草", qty: 2},
+      {item: "糖", qty: 3},
+      ],    // item 填「材料的代號」，不是中文名
+    },
 };
 
 
