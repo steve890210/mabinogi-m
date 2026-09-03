@@ -441,7 +441,7 @@ function renderLife(){
       const cards = s.drops.map(key => {
         const item = ITEMS[key];
         if (!item) return `<button class="item-card" disabled>（找不到道具：${key}）</button>`;
-        return `<button class="item-card" onclick="showItem('${key}','${type}',${i})">
+        return `<button class="item-card" onclick="itemFromSkill('${key}','${type}',${i})">
                   <div class="iname">${item.name}</div>
                   ${renderTags(item.tags)}
                   <div class="idesc">${item.desc}</div>
@@ -488,15 +488,17 @@ function renderLife(){
     return `<div class="tags">${pills}</div>`;
   }
 
-  /* 道具詳細頁面。fromType/fromIndex 是「從哪個技能點進來的」，讓返回鍵回到正確的技能頁 */
-  function showItem(key, fromType, fromIndex){
+let backTo = { fn: null };                            // 記住「返回鍵按下去要跑哪個函式」
+function itemGoBack(){ if (backTo.fn) backTo.fn(); }  // 返回鍵一律呼叫這個，它再去跑記住的函式
+function itemFromSkill(key, type, i){ backTo.fn = () => showSkill(type, i); showItem(key, '← 返回技能'); }
+function itemFromNpc(key, idx){       backTo.fn = () => showNpc(idx);        showItem(key, '← 返回 NPC');  }
+  
+  /* 道具詳細頁面：返回動作由呼叫者事先存進 backTo，這裡不用管是誰叫的 */
+  function showItem(key, backLabel){                                                  // ← 改：參數變成 key + backLabel
     const item = ITEMS[key];
     if (!item) return;                       // 防呆：代號不存在就什麼都不做
     pageTitle.textContent = item.name;
-    // 返回鍵要回哪裡：從 NPC 來就回 NPC，否則(技能)回技能
-    const back = (fromType === 'npc')
-      ? `<button class="back" onclick="showNpc(${fromIndex})">← 返回 NPC</button>`
-      : `<button class="back" onclick="showSkill('${fromType}',${fromIndex})">← 返回技能</button>`;
+    const back = `<button class="back" onclick="itemGoBack()">${backLabel}</button>`; // ← 改：返回鍵統一叫 itemGoBack
     view.innerHTML = `
       ${back}
       <div class="hero"><h2>${item.name}</h2>${renderTags(item.tags)}</div>
@@ -543,7 +545,7 @@ function showNpc(idx){                                                    // idx
     return list.map(s => {                                                // 逐筆處理
       const it = ITEMS[s.item];                                           // 用代號去 ITEMS 查
       const name = it                                                     // 查得到→可點連結；查不到→純文字
-        ? `<span onclick="showItem('${s.item}','npc',${idx})" style="color:var(--gold);cursor:pointer;text-decoration:underline;">${it.name}</span>`
+        ? `<span onclick="itemFromNpc('${s.item}',${idx})" style="color:var(--gold);cursor:pointer;text-decoration:underline;">${it.name}</span>`
         : s.item;
       return `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);">
                 <span>${name}</span>
