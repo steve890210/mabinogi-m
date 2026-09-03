@@ -14,7 +14,7 @@ const REGIONS = ["提爾克那", "杜加德走廊", "杜巴頓","希德斯特雪
     sells:[
       { item:"繃帶", price:"50", currency:"金幣" },
       { item:"神秘藥水", price:"1", currency:"紅寶石" },
-      { item:"wheat", price:"1", currency:"金幣" },
+      { item:"小麥", price:"1", currency:"金幣" },
     ],
     barter:[
       { item:"", price:"", currency:"" },
