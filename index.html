@@ -492,6 +492,31 @@ let backTo = { fn: null };                            // 記住「返回鍵按�
 function itemGoBack(){ if (backTo.fn) backTo.fn(); }  // 返回鍵一律呼叫這個，它再去跑記住的函式
 function itemFromSkill(key, type, i){ backTo.fn = () => showSkill(type, i); showItem(key, '← 返回技能'); }
 function itemFromNpc(key, idx){       backTo.fn = () => showNpc(idx);        showItem(key, '← 返回 NPC');  }
+
+  /* 反向查詢：給一個道具代號，找出「哪些成品用到它 / 哪些NPC賣它 / 哪個採集技能產出它」
+     ── 重點：這些關係我們都「沒有重複儲存」，而是每次現場掃出來，維持單一真相來源 ── */
+  function itemUsage(key){
+    const usedIn  = [];   // 哪些成品的 recipe 用到我（之後做成可點連結）
+    const soldBy  = [];   // 哪些 NPC 在賣我（含價格）
+    const gotFrom = [];   // 哪個採集技能會產出我
+
+    // ① 掃所有道具的 recipe：誰用到我當材料
+    for (const [k, it] of Object.entries(ITEMS)){
+      if (it.recipe && it.recipe.some(r => r.item === key)) usedIn.push({ key:k, name:it.name });
+    }
+    // ② 掃所有 NPC 的 sells：誰在賣我
+    for (const npc of NPCS){
+      for (const s of (npc.sells || [])){
+        if (s.item === key) soldBy.push({ npc:npc.name, price:s.price, currency:s.currency });
+      }
+    }
+    // ③ 掃所有採集技能的 drops：哪個技能產出我
+    for (const sk of GATHER){
+      if (sk.drops && sk.drops.includes(key)) gotFrom.push(sk.name);
+    }
+    return { usedIn, soldBy, gotFrom };
+  }
+
   
   /* 道具詳細頁面：返回動作由呼叫者事先存進 backTo，這裡不用管是誰叫的 */
   function showItem(key, backLabel){                                                  // ← 改：參數變成 key + backLabel
