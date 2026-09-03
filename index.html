@@ -519,18 +519,47 @@ function itemFromNpc(key, idx){       backTo.fn = () => showNpc(idx);        sho
 
   
   /* 道具詳細頁面：返回動作由呼叫者事先存進 backTo，這裡不用管是誰叫的 */
-  function showItem(key, backLabel){                                                  // ← 改：參數變成 key + backLabel
+   /* 道具詳細頁：名稱標籤 ＋ 價格/效果/說明 ＋ 配方 ＋ 反向的用途/販售/取得
+     ── 每一格「有資料才顯示，沒資料自動隱藏」 ── */
+  function showItem(key, backLabel){
     const item = ITEMS[key];
-    if (!item) return;                       // 防呆：代號不存在就什麼都不做
+    if (!item) return;
     pageTitle.textContent = item.name;
-    const back = `<button class="back" onclick="itemGoBack()">${backLabel}</button>`; // ← 改：返回鍵統一叫 itemGoBack
+    const back = `<button class="back" onclick="itemGoBack()">${backLabel}</button>`;
+
+    const use = itemUsage(key);   // ← 呼叫剛剛的反向查詢，拿到 usedIn / soldBy / gotFrom
+
+    // 小工具1：做一個「標題＋內容」的欄位區塊
+    const field = (title, value) => `<div class="field"><div class="k">${title}</div><div class="v">${value}</div></div>`;
+
+    // 小工具2：做一個「可點的道具連結」；還沒建的道具顯示灰字（待補）
+    const link = "color:var(--gold);cursor:pointer;text-decoration:underline;";
+    const itemLink = (k, qty) => {
+      const t = ITEMS[k];
+      const q = qty ? ` ×${qty}` : '';
+      return t ? `<span style="${link}" onclick="itemFromList('${k}')">${t.name}</span>${q}`
+               : `<span style="color:var(--muted);">${k}（待補）</span>${q}`;
+    };
+
+    // 一格一格組；沒資料的那格就不加進去 → 自然不會出現
+    const rows = [];
+    if (item.price != null && item.price !== '') rows.push(field("賣店價格 · Sell", `${item.price} 金幣`));
+    if (item.effect)                             rows.push(field("效果 · Effect", item.effect));
+    if (item.desc)                               rows.push(field("說明 · Info", item.desc));
+    if (item.recipe && item.recipe.length)       rows.push(field("製作材料 · Recipe",
+                                                    item.recipe.map(r => itemLink(r.item, r.qty)).join("　")));
+    if (use.usedIn.length)                       rows.push(field("可用於製作 · Used in",
+                                                    use.usedIn.map(u => itemLink(u.key)).join("　")));
+    if (use.soldBy.length)                       rows.push(field("哪裡購買 · Sold by",
+                                                    use.soldBy.map(s => `${s.npc}（${s.price} ${s.currency}）`).join("<br>")));
+    if (use.gotFrom.length)                      rows.push(field("如何取得 · Source",
+                                                    use.gotFrom.map(g => `${g}（採集）`).join("<br>")));
+
     view.innerHTML = `
       ${back}
       <div class="hero"><h2>${item.name}</h2>${renderTags(item.tags)}</div>
       <div class="detail">
-        <div class="info">
-          <div class="field"><div class="k">說明 · Info</div><div class="v">${item.desc}</div></div>
-        </div>
+        <div class="info">${rows.join("")}</div>
       </div>`;
   }
   /* ===== 物品查詢頁 ===== */
