@@ -10,7 +10,7 @@ const REGIONS = ["提爾克那", "杜加德走廊", "杜巴頓","希德斯特雪
     name:"特蕾西",
     region:"杜加德走廊",
     img:"img/特蕾西.png",
-    desc:"",
+    desc:"嗓門宏亮的伐木場大叔",
     sells:[
       { item:"繃帶", price:"50", currency:"金幣" },
       { item:"神秘藥水", price:"1", currency:"紅寶石" },
@@ -24,7 +24,7 @@ const REGIONS = ["提爾克那", "杜加德走廊", "杜巴頓","希德斯特雪
     name:"艾爾文",
     region:"杜加德走廊",
     img:"",
-    desc:"",
+    desc:"目光嚴厲的伐木場青年",
     sells:[
       { item:"", price:"", currency:"" },
     ],
