@@ -27,3 +27,7 @@ const TAGS = {
   canSell: { name:"可販售"},
   material: { name:"材料"},
 };
+
+/* 道具的分類屬性標籤 */
+const ITEMCATEGORIES = {
+  材
