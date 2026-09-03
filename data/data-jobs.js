@@ -36,8 +36,12 @@ const JOBS = [
 // 之後多的職業，照這樣一筆一筆加，標好它屬於哪個分類
 
 const JOBTAGS = {
-  noTrade: { name:"無法交易"},
-  canALLStore: { name:"可使用公用保管箱"},
-  canSell: { name:"可販售"},
-  material: { name:"材料"},
+  元素: { name:"元素"},
+  強擊: { name:"強擊"},
+  連擊: { name:"連擊"},
+  移動: { name:"移動"},
+  干擾: { name:"干擾"},
+  輔助: { name:"輔助"},
+  生存: { name:"生存"},
+  召喚: { name:"召喚"},
 };
