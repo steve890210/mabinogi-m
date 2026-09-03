@@ -216,7 +216,7 @@
       <button class="nav-btn" data-view="job"><span class="ico">⚔️</span>職業介紹</button>
       <button class="nav-btn" data-view="life"><span class="ico">⛏️</span>生活技能</button>
       <button class="nav-btn" data-view=""><span class="ico">🛡️</span>裝備查詢</button>
-      <button class="nav-btn" data-view=""><span class="ico">🎒</span>物品查詢</button>
+      <button class="nav-btn" data-view="item"><span class="ico">🎒</span>物品查詢</button>
       <button class="nav-btn" data-view="rune"><span class="ico">ᚱ</span>符文查詢</button>
       <button class="nav-btn" data-view="guide"><span class="ico">📖</span>攻略專區</button>
       
@@ -508,6 +508,71 @@ function itemFromNpc(key, idx){       backTo.fn = () => showNpc(idx);        sho
         </div>
       </div>`;
   }
+  /* ===== 物品查詢頁 ===== */
+  let itemCats = [];        // 已選分類（空陣列＝全部）
+  let itemSearch = "";      // 搜尋字
+
+  // 第三個「開啟道具」入口：從物品列表點進來，返回就回列表
+  function itemFromList(key){ backTo.fn = () => renderItemGallery(); showItem(key, '← 返回物品列表'); }
+
+  // 分類 chip 切換（跟符文的 toggleRuneCat 同邏輯）
+  function toggleItemCat(x){
+    if(x==="全部"){ itemCats=[]; }
+    else if(itemCats.includes(x)){ itemCats = itemCats.filter(v=>v!==x); }  // 已選→取消
+    else { itemCats.push(x); }                                             // 未選→加入
+    renderItemGallery();
+  }
+  /* 物品查詢：搜尋框 ＋ 分類 chip ＋ 卡片牆（固定框架部分） */
+  function renderItemGallery(){
+    pageTitle.textContent = "物品查詢";
+    const catItems = ["全部", ...Object.keys(ITEM_CATEGORIES)];   // 分類按鈕清單：全部＋你那18類
+
+    // 小工具：做一排 chip（沿用符文的邏輯：選了亮起來，按「全部」＝清空）
+    const chipRow = (items, selected) =>
+      items.map(x=>{
+        const active = (x==="全部") ? selected.length===0 : selected.includes(x);
+        return `<button class="chip ${active?'active':''}" onclick="toggleItemCat('${x}')">${x}</button>`;
+      }).join('');
+
+    view.innerHTML = `
+      <div class="tools">
+        <div class="search" style="flex:0 0 100%;"><span class="mag">⌕</span>
+          <input id="itemInput" type="text" placeholder="搜尋道具名稱或說明…" value="${itemSearch}"></div>
+        <div style="flex:0 0 100%;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">分類</div>
+          <div class="chips">${chipRow(catItems, itemCats)}</div>
+        </div>
+      </div>
+      <div id="itemGallery"></div>`;
+
+    const input = document.getElementById('itemInput');
+    input.addEventListener('input', e=>{ itemSearch = e.target.value; drawItemGallery(); });  // 打字就重畫卡片
+    drawItemGallery();
+  }
+
+  /* 物品查詢：依「分類＋搜尋」篩選，排序後把卡片畫出來（會變動的部分） */
+  function drawItemGallery(){
+    const q = itemSearch.trim();
+
+    // Object.entries → [ [代號, 道具], ... ]，因為點卡片需要「代號」
+    const filtered = Object.entries(ITEMS).filter(([key, item])=>{
+      const okCat = itemCats.length===0 || itemCats.includes(item.category);   // 分類：沒選＝全部通過
+      const text  = item.name + (item.desc || "");
+      return okCat && (!q || text.includes(q));                                // 分類＋搜尋都要通過才留下
+    });
+
+    // 依筆畫排序（每次顯示才排 → 檔案裡的填入順序不影響畫面）
+    filtered.sort((a,b)=> a[1].name.localeCompare(b[1].name, "zh-Hant-u-co-stroke"));
+
+    const g = document.getElementById('itemGallery');
+    if(filtered.length===0){ g.innerHTML = `<div class="empty">找不到符合的道具。</div>`; return; }
+
+    // 一顆道具做成一張可點的小卡（跟 NPC、職業卡片同款式）
+    const card = ([key, item]) =>
+      `<div class="rune" onclick="itemFromList('${key}')"><div class="rname">${item.name}</div></div>`;
+
+    g.innerHTML = `<div class="gallery">${filtered.map(card).join('')}</div>`;
+  }
   
 /* NPC：照地區顯示（名字＋圖片卡片） */
 function renderNpc(){                                                     // NPC 列表頁：照地區排出所有 NPC 卡片
@@ -660,9 +725,11 @@ function go(v){
   if(v==='home') renderHome();
   else if(v==='rune'){ runeCats=[]; runeGrades=[]; runeSearch=""; runeJob="全部"; renderRuneGallery(); }
   else if(v==='npc') renderNpc();
+  else if(v==='item'){ itemCats=[]; itemSearch=""; renderItemGallery(); }
   else if(v==='life') renderLife();
   else if(v==='job') renderJobs();
   else if(v==='guide') renderGuide();
+  
   closeMenu();
 }
 // 切換種類：已選→取消、未選→加入；按「全部」→ 清空（＝顯示全部）
