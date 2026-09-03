@@ -52,6 +52,7 @@ const ITEMS = {
     tags: ["canALLStore","canSell"],
     img: "",                       // 先留空    
     price: 5,                      // 賣店價；沒有就整行不寫
+    effect: "智力+25<br>幸運+25<br>持續時間:20分鐘
     desc: "說明…<br>可換行。",
     recipe: [                      // 只有「成品」才寫；純材料整行不用寫
       { item: "玉米", qty: 10,
